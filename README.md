@@ -1,4 +1,4 @@
 # yorisoi-demo
 `yarn dev` で起動
 
-バックエンドはワダケン作成のdemo-micro-api
+server:https://github.com/wadakenji/demo-micro-api
