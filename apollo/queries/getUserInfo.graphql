@@ -1,0 +1,9 @@
+{
+  getUserInfo {
+    id
+    userId
+    bodyTemperature
+    bloodPressure
+    pulse
+  }
+}

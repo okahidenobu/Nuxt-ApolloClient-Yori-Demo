@@ -1,0 +1,8 @@
+subscription {
+  userUpdated {
+    id
+    facilityId
+    firstName
+    lastName
+  }
+}

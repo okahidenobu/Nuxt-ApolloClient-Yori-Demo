@@ -1,0 +1,6 @@
+mutation($userId: ID!) {
+  updateUserInfo(
+    userId: $userId
+    updateItems: { bodyTemperature: 0, bloodPressure: 0, pulse: 0 }
+  )
+}

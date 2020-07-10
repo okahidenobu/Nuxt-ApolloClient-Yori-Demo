@@ -1,0 +1,13 @@
+mutation($userId: ID) {
+  createUserInfo(
+    userId: $userId
+    bodyTemperature: 100
+    bloodPressure: 100
+    pulse: 100
+  ) {
+    userId
+    bodyTemperature
+    bloodPressure
+    pulse
+  }
+}
