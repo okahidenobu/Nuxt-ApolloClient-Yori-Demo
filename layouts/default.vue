@@ -102,6 +102,16 @@ export default {
           title: 'vuexTest',
           to: '/storeTests/vuexTest',
         },
+        {
+          icon: 'mdi-chart-bubble',
+          title: 'vuetifyValidation',
+          to: '/validationTest/vuetifyValidation',
+        },
+        {
+          icon: 'mdi-chart-bubble',
+          title: 'veeValidationTest',
+          to: '/validationTest/veeValidationTest',
+        },
       ],
       miniVariant: false,
       right: true,

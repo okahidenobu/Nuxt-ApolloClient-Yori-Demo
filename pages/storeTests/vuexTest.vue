@@ -1,8 +1,9 @@
 <template>
   <div>
     {{ userInfo }}
-    <v-btn @click="updateUserInfo(80)">update</v-btn>
-    <v-btn @click="createUserInfo(80)">create</v-btn>
+    <v-btn @click="updateUserInfo(82)">update</v-btn>
+    <v-btn @click="createUserInfo(82)">create</v-btn>
+    <v-btn @click="deleteUserInfo(Number(45))">delete</v-btn>
   </div>
 </template>
 
@@ -23,6 +24,9 @@ export default {
     },
     createUserInfo(userId) {
       this.$store.dispatch('vuexTest/createUserInfo', { userId })
+    },
+    deleteUserInfo(id) {
+      this.$store.dispatch('vuexTest/deleteUserInfo', { id })
     },
   },
 }

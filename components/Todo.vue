@@ -1,5 +1,10 @@
 <template>
   <v-app>
+    <v-snackbar :value="snackbar">
+      {{ message }}
+      <v-btn color="pink" text @click="snackbar = false">Close</v-btn>
+    </v-snackbar>
+
     <v-container class="display-1" fluid>
       <v-row align="start" justify="center">
         <v-col cols="5">
@@ -35,19 +40,31 @@
         </v-col>
         <v-col cols="3">
           <v-card-text>
-            <form @submit.prevent>
+            <v-form ref="form" v-model="valid" lazy-validation>
               <v-text-field
                 v-model="facilityId"
                 label="facility ID"
+                :counter="3"
+                :rules="[facilityIdRule.number, facilityIdRule.max]"
+                required
               ></v-text-field>
               <v-text-field
                 v-model="firstName"
                 label="first name"
+                :counter="10"
+                :rules="[nameRules.required, nameRules.max]"
+                required
               ></v-text-field>
-              <v-text-field v-model="lastName" label="last name"></v-text-field>
-              <!--              <Vbtn description="submit" @click="addTodo(text)" />-->
+              <v-text-field
+                v-model="lastName"
+                label="last name"
+                :counter="10"
+                :rules="[nameRules.required, nameRules.max]"
+                required
+              >
+              </v-text-field>
               <v-btn @click="createUser()">submit</v-btn>
-            </form>
+            </v-form>
           </v-card-text>
         </v-col>
       </v-row>
@@ -56,8 +73,12 @@
 </template>
 
 <script>
-import Vbtn from './Vbtn'
+// コンポーネント
+// import Vbtn from './Vbtn'
+// import GlobalSnackbar from './GlobalSnackbar'
 
+// クエリ
+import { nameRules, facilityIdRule } from '../utils/validationRules'
 import getUsers from '~/apollo/queries/getUsers.graphql'
 import createUser from '~/apollo/mutations/createUser.graphql'
 import deleteUser from '~/apollo/mutations/deleteUser.graphql'
@@ -68,15 +89,32 @@ import userDeleted from '~/apollo/subscriptions/userDeleted.graphql'
 // import getUserInfo from '~/apollo/queries/getUserInfo.graphql'
 
 export default {
-  components: Vbtn,
+  // components: { Vbtn, GlobalSnackbar },
+  // components: { GlobalSnackbar },
   data() {
     return {
+      valid: true,
       text: '',
       getUsers: [],
       firstName: '',
       lastName: '',
       UserInfo: [],
       facilityId: '',
+      snackbar: '',
+      message: '',
+      // nameRules: {
+      //   required: (v) => !!v || 'Name is required',
+      //   max: (v) =>
+      //     (v && v.length <= 10) || 'Name must be less than 10 characters',
+      // },
+      nameRules: {
+        required: nameRules.required,
+        max: nameRules.max,
+      },
+      facilityIdRule: {
+        number: facilityIdRule.number,
+        max: facilityIdRule.max,
+      },
     }
   },
   computed: {
@@ -87,26 +125,40 @@ export default {
   methods: {
     // mutationで新しいデータを作成する処理
     async createUser() {
-      // We save the user input in case of an error これはなくてもいいのか？
-      const firstName = this.firstName
-      const lastName = this.lastName
-      const facilityId = Number(this.facilityId)
-      // We clear it early to give the UI a snappy feel これもなくてもいいのか？
-      this.firstName = ''
-      this.lastName = ''
-      this.facilityId = ''
+      if (this.$refs.form.validate()) {
+        // We save the user input in case of an error これはなくてもいいのか？
+        const firstName = this.firstName
+        const lastName = this.lastName
+        const facilityId = Number(this.facilityId)
+        // We clear it early to give the UI a snappy feel これもなくてもいいのか？
+        this.firstName = ''
+        this.lastName = ''
+        this.facilityId = ''
 
-      // mutation実行処理
-      await this.$apollo.mutate({
-        // クエリ
-        mutation: createUser,
-        // 変数
-        variables: {
-          facilityId,
-          firstName,
-          lastName,
-        },
-      })
+        // mutation実行処理
+        await this.$apollo
+          .mutate({
+            // クエリ
+            mutation: createUser,
+            // 変数
+            variables: {
+              facilityId,
+              firstName,
+              lastName,
+            },
+          })
+          .then((res) => {
+            // 送信成功はこの中
+            this.message = 'データを追加しました'
+            this.snackbar = true
+            this.$refs.form.resetValidation()
+          })
+        // .catch((err) => {
+        //   // 送信失敗はこの中の処理
+        //   this.message = '失敗しました'
+        //   this.isSnackBar = true
+        // })
+      }
     },
 
     async updateUser(id) {
@@ -116,27 +168,40 @@ export default {
       this.firstName = ''
       this.lastName = ''
       // mutation実行処理
-      await this.$apollo.mutate({
-        // クエリ
-        mutation: updateUser,
-        // 変数
-        variables: {
-          id,
-          firstName,
-          lastName,
-        },
-      })
+      await this.$apollo
+        .mutate({
+          // クエリ
+          mutation: updateUser,
+          // 変数
+          variables: {
+            id,
+            firstName,
+            lastName,
+          },
+        })
+        .then((res) => {
+          // 送信成功はこの中
+          this.message = 'データを更新しました'
+          this.snackbar = true
+        })
     },
+
     async deleteUser(id) {
       // mutation実行処理
-      await this.$apollo.mutate({
-        // クエリ
-        mutation: deleteUser,
-        // 変数
-        variables: {
-          id,
-        },
-      })
+      await this.$apollo
+        .mutate({
+          // クエリ
+          mutation: deleteUser,
+          // 変数
+          variables: {
+            id,
+          },
+        })
+        .then((res) => {
+          // 送信成功はこの中
+          this.message = 'データを削除しました'
+          this.snackbar = true
+        })
     },
   },
   apollo: {
@@ -154,6 +219,7 @@ export default {
             if (!subscriptionData.data) {
               return previousResult
             }
+
             return {
               getUsers: [
                 ...previousResult.getUsers,
