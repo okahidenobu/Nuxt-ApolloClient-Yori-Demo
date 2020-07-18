@@ -1,9 +1,10 @@
 <template>
   <v-app>
-    <v-snackbar :value="snackbar">
-      {{ message }}
-      <v-btn color="pink" text @click="snackbar = false">Close</v-btn>
-    </v-snackbar>
+    <!--    <v-snackbar :value="snackbar">-->
+    <!--      {{ message }}-->
+    <!--      <v-btn color="pink" text @click="snackbar = false">Close</v-btn>-->
+    <!--    </v-snackbar>-->
+    <global-snackbar :snackbar="snackbar" :message="message" />
 
     <v-container class="display-1" fluid>
       <v-row align="start" justify="center">
@@ -45,7 +46,7 @@
                 v-model="facilityId"
                 label="facility ID"
                 :counter="3"
-                :rules="[facilityIdRule.number, facilityIdRule.max]"
+                :rules="[facilityIdRules.number, facilityIdRules.max]"
                 required
               ></v-text-field>
               <v-text-field
@@ -74,11 +75,10 @@
 
 <script>
 // コンポーネント
-// import Vbtn from './Vbtn'
-// import GlobalSnackbar from './GlobalSnackbar'
+import { nameRules, facilityIdRules } from '../utils/validationRules'
+import GlobalSnackbar from './GlobalSnackbar'
 
 // クエリ
-import { nameRules, facilityIdRule } from '../utils/validationRules'
 import getUsers from '~/apollo/queries/getUsers.graphql'
 import createUser from '~/apollo/mutations/createUser.graphql'
 import deleteUser from '~/apollo/mutations/deleteUser.graphql'
@@ -89,8 +89,7 @@ import userDeleted from '~/apollo/subscriptions/userDeleted.graphql'
 // import getUserInfo from '~/apollo/queries/getUserInfo.graphql'
 
 export default {
-  // components: { Vbtn, GlobalSnackbar },
-  // components: { GlobalSnackbar },
+  components: { GlobalSnackbar },
   data() {
     return {
       valid: true,
@@ -102,25 +101,15 @@ export default {
       facilityId: '',
       snackbar: '',
       message: '',
-      // nameRules: {
-      //   required: (v) => !!v || 'Name is required',
-      //   max: (v) =>
-      //     (v && v.length <= 10) || 'Name must be less than 10 characters',
-      // },
       nameRules: {
         required: nameRules.required,
         max: nameRules.max,
       },
-      facilityIdRule: {
-        number: facilityIdRule.number,
-        max: facilityIdRule.max,
+      facilityIdRules: {
+        number: facilityIdRules.number,
+        max: facilityIdRules.max,
       },
     }
-  },
-  computed: {
-    todos() {
-      return this.$store.state.todos.list
-    },
   },
   methods: {
     // mutationで新しいデータを作成する処理

@@ -16,12 +16,24 @@ export default function (ctx) {
     }
   `
 
+  const snackbarQuery = gql`
+    {
+      getSnackbar @client {
+        isEnable
+        message
+      }
+    }
+  `
+
   return {
     // httpエンドポイント
     httpEndpoint: 'http://localhost:8093/graphql',
-
     // wsエンドポイント
     wsEndpoint: 'ws://localhost:8093/graphql',
+
+    // mockサーバー
+    // httpEndpoint: 'http://localhost:4000/',
+    // wsEndpoint: 'http://localhost:4000/',
 
     // 設定しなくてもよい？？
     // websocketsOnly: true,
@@ -38,14 +50,28 @@ export default function (ctx) {
         lastName: String
       }
 
+      type Snackbar {
+        isEnable: Boolean!
+        message: String
+      }
+
+      type UserAndSnackbar {
+        user: [User]
+        snackbar: Snackbar
+      }
+
       type Query {
         Users: [User]
+        getSnackbar: Snackbar
+        getUserAndSnackbar: UserAndSnackbar
       }
 
       type Mutation {
         updateUser(id: ID!, facilityId: Int): Int
         craeteUser(id: ID!): User
         deleteUser(id: ID!): Int
+        snackbarOn(message: String): Boolean
+        snackbarOff: Boolean
       }
     `,
 
@@ -91,6 +117,29 @@ export default function (ctx) {
           })
           return id
         },
+        snackbarOn: async (_, { message }, { cache }) => {
+          // キャッシュを読み込み
+          const data = cache.readQuery({ query: snackbarQuery })
+
+          data.getSnackbar.isEnable = true
+
+          // messageの指定があれば更新
+          if (message) data.getSnackbar.message = message
+
+          // キャッシュを更新
+          await cache.writeQuery({ query: snackbarQuery, data })
+          return !data.getSnackbar.isEnable
+        },
+        snackbarOff: async (_, payload, { cache }) => {
+          // キャッシュを読み込み
+          const data = cache.readQuery({ query: snackbarQuery })
+
+          data.getSnackbar.isEnable = false
+
+          // キャッシュを更新
+          await cache.writeQuery({ query: snackbarQuery, data })
+          return !data.getSnackbar.isEnable
+        },
       },
     },
 
@@ -107,6 +156,11 @@ export default function (ctx) {
             __typename: 'User',
           },
         ],
+        getSnackbar: {
+          isEnable: false,
+          message: 'snackbarです',
+          __typename: 'Snackbar',
+        },
       }
       // キャッシュを更新
       cache.writeData({ data })

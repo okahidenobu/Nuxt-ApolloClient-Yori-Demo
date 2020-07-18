@@ -41,6 +41,11 @@
         <v-icon>mdi-menu</v-icon>
       </v-btn>
     </v-app-bar>
+    <!--    スナックバー   ー-->
+    <!--    <v-snackbar v-model="snackbarVisible" top>-->
+    <!--      {{ this.$store.getters['snackbar/message'] }}-->
+    <!--    </v-snackbar>-->
+    <global-snackbar />
     <v-content>
       <v-container>
         <nuxt />
@@ -65,7 +70,10 @@
 </template>
 
 <script>
+import GlobalSnackbar from '../components/GlobalSnackbar'
+
 export default {
+  components: { 'global-snackbar': GlobalSnackbar },
   data() {
     return {
       clipped: false,
@@ -112,12 +120,23 @@ export default {
           title: 'veeValidationTest',
           to: '/validationTest/veeValidationTest',
         },
+        {
+          icon: 'mdi-chart-bubble',
+          title: 'mockServerTest',
+          to: '/mockServerTest',
+        },
       ],
       miniVariant: false,
       right: true,
       rightDrawer: false,
       title: 'yorisoi-demo',
     }
+  },
+  computed: {
+    // snackbarが自動でfalseに設定するためセッタを用意して、明示的にdispatchからOffするようにする
+    snackbarVisible() {
+      return this.$store.state.snackbar.isEnable
+    },
   },
 }
 </script>

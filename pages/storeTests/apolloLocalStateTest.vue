@@ -1,11 +1,11 @@
 <template>
   <div>
-    <global-snackbar :snackbar="snackbar" :message="message" />
-    <pre>{{ Users }}</pre>
+    <global-snackbar />
+    <pre>getSnackbar: {{ getSnackbar }}</pre>
+    <pre>Users:{{ Users }}</pre>
     <v-btn @click="craeteUser(1)">create</v-btn>
     <v-btn @click="updateUser(0, 100)">update</v-btn>
     <v-btn @click="deleteUser(1)">delete</v-btn>
-    <pre>{{ snackbar }}</pre>
   </div>
 </template>
 
@@ -22,18 +22,26 @@ export default {
     }
   },
   apollo: {
-    Users: {
+    getSnackbar: {
       query: gql`
         {
-          Users @client {
-            id
-            facilityId
-            firstName
-            lastName
+          getSnackbar @client {
+            isEnable
+            message
           }
         }
       `,
     },
+    Users: gql`
+      {
+        Users @client {
+          id
+          facilityId
+          firstName
+          lastName
+        }
+      }
+    `,
   },
   methods: {
     updateUser(id, facilityId) {
@@ -51,8 +59,8 @@ export default {
         })
         .then((res) => {
           // データ追加時処理
-          this.message = 'データを更新しました'
-          this.snackbar = true
+          const message = 'データを更新しました'
+          this.snackbarOn(message)
         })
     },
     craeteUser(id) {
@@ -69,8 +77,8 @@ export default {
         })
         .then((res) => {
           // データ追加時処理
-          this.message = 'データを追加しました'
-          this.snackbar = true
+          const message = 'データを追加しました'
+          this.snackbarOn(message)
         })
     },
     deleteUser(id) {
@@ -87,9 +95,21 @@ export default {
         })
         .then((res) => {
           // データ追加時処理
-          this.message = 'データを削除しました'
-          this.snackbar = true
+          const message = 'データを削除しました'
+          this.snackbarOn(message)
         })
+    },
+    snackbarOn(message) {
+      this.$apollo.mutate({
+        mutation: gql`
+          mutation($message: String) {
+            snackbarOn(message: $message) @client
+          }
+        `,
+        variables: {
+          message,
+        },
+      })
     },
   },
 }

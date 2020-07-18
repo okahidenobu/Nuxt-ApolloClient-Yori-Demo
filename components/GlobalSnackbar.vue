@@ -1,30 +1,32 @@
 <template>
-  <v-snackbar :value="snackbar">
-    {{ message }}
-    <!--    <v-btn color="pink" text @click="closeSnackbar">Close</v-btn>-->
-    <global-btn text="close" @closeSnackbar="closeSnackbar" />
+  <v-snackbar :value="getSnackbar.isEnable">
+    {{ getSnackbar.message }}
+    <global-btn text="close" />
   </v-snackbar>
 </template>
 
 <script>
+import gql from 'graphql-tag'
 import GlobalBtn from './GlobalBtn'
 
 export default {
   name: 'GlobalSnackbar',
   components: { GlobalBtn },
-  props: {
-    snackbar: { type: Boolean, default: false },
-    message: { type: String, default: 'データが変更がありました' },
+  data() {
+    return {
+      getSnackbar: {},
+    }
   },
-  // data() {
-  //   return {
-  //     snackbar: false,
-  //     message: 'データが変更がありました',
-  //   }
-  // },
-  methods: {
-    closeSnackbar() {
-      this.snackbar = false
+  apollo: {
+    getSnackbar: {
+      query: gql`
+        {
+          getSnackbar @client {
+            isEnable
+            message
+          }
+        }
+      `,
     },
   },
 }
