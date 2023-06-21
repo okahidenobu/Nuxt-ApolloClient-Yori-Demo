@@ -20,7 +20,7 @@
     "@nuxtjs/pwa": "^3.0.0-beta.20",
     "core-js": "2.6.11",
     "graphql-tag": "^2.10.3",
-    "nuxt": "^2.13.0",
+    "nuxt": "^3.4.3",
     "vee-validate": "^3.3.7",
     "vuex": "^3.5.1"
   },
